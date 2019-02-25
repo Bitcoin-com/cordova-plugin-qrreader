@@ -6,9 +6,6 @@
 //  Copyright © 2019 Bitcoin.com
 //
 
-// Migration Native to Cordova
-// In progress
-
 import UIKit
 import AVKit
 
