@@ -5,7 +5,8 @@
   "cordova": {
     "id": "cordova-plugin-qrreader",
     "platforms": [
-      "android"
+      "android",
+      "ios"
     ]
   },
   "keywords": [
@@ -13,10 +14,7 @@
     "qrcode",
     "ecosystem:cordova",
     "cordova-android",
-    "cordova-ios",
-    "cordova-windows",
-    "cordova-browser",
-    "cordova-osx"
+    "cordova-ios"
   ],
   "author": "Bitcoin.com",
   "license": "Apache-2.0",
