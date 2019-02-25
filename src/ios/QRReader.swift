@@ -176,7 +176,7 @@ extension QRReader {
         commandDelegate.send(pluginResult, callbackId: callbackId)
     }
     
-    func onSuccess(_ result: String) {
+    fileprivate func onSuccess(_ result: String) {
         guard let readingCommand = self.readingCommand else {
             return
         }
@@ -185,7 +185,7 @@ extension QRReader {
         self.readingCommand = nil
     }
     
-    func onFailed(_ error: QRReaderError) {
+    fileprivate func onFailed(_ error: QRReaderError) {
         guard let readingCommand = self.readingCommand else {
             return
         }
