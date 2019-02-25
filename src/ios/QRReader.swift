@@ -3,8 +3,11 @@
 //  Bitcoin.com
 //
 //  Copyright © 2019 Jean-Baptiste Dominguez
-//  Copyright © 2019 Bitcoin.com
+//  Copyright © 2019 Bitcoin Cash Supporters developers
 //
+
+// Migration Native to Cordova
+// In progress
 
 import UIKit
 import AVKit
@@ -16,6 +19,11 @@ class QRReader: CDVPlugin, AVCaptureMetadataOutputObjectsDelegate {
     fileprivate var captureSession: AVCaptureSession!
     fileprivate var previewLayer: AVCaptureVideoPreviewLayer!
     fileprivate var cameraView: UIView!
+
+    enum QRReaderPermissionResult: String {
+        case PERMISSION_DENIED
+        case PERMISSION_GRANTED
+    }
     
     enum QRReaderError: String {
         case ERROR_PERMISSION_DENIED
@@ -60,7 +68,27 @@ extension QRReader {
 extension QRReader {
     
     func checkPermission(_ command: CDVInvokedUrlCommand) {
-        self.callback(command, status: CDVCommandStatus_OK)
+        
+        var response: String
+        switch AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) {
+        case .authorized: // The user has previously granted access to the camera.
+            print("Access authorized.")
+            response = QRReaderPermissionResult.PERMISSION_GRANTED.rawValue
+            
+        case .notDetermined: // The user has not yet been asked for camera access.
+            print("Access not determined.")
+            response = QRReaderPermissionResult.PERMISSION_DENIED.rawValue
+            
+        case .denied: // The user has previously denied access.
+            print("Access denied.")
+            response = QRReaderPermissionResult.PERMISSION_DENIED.rawValue
+            
+        case .restricted: // The user can't grant access due to restrictions.
+            print("Access restricted.")
+            response = QRReaderPermissionResult.PERMISSION_DENIED.rawValue
+        }
+        
+        self.callback(command, status: CDVCommandStatus_OK, message: response)
     }
     
     func openSettings(_ command: CDVInvokedUrlCommand) {
