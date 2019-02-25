@@ -3,7 +3,7 @@
 //  Bitcoin.com
 //
 //  Copyright © 2019 Jean-Baptiste Dominguez
-//  Copyright © 2019 Bitcoin Cash Supporters developers
+//  Copyright © 2019 Bitcoin.com
 //
 
 // Migration Native to Cordova
