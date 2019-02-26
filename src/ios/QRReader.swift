@@ -23,6 +23,8 @@ class QRReader: CDVPlugin, AVCaptureMetadataOutputObjectsDelegate {
     enum QRReaderPermissionResult: String {
         case PERMISSION_DENIED
         case PERMISSION_GRANTED
+        case PERMISSION_NOT_DETERMINED
+        case PERMISSION_RESTRICTED
     }
     
     enum QRReaderError: String {
@@ -77,7 +79,7 @@ extension QRReader {
             
         case .notDetermined: // The user has not yet been asked for camera access.
             print("Access not determined.")
-            response = QRReaderPermissionResult.PERMISSION_DENIED.rawValue
+            response = QRReaderPermissionResult.PERMISSION_NOT_DETERMINED.rawValue
             
         case .denied: // The user has previously denied access.
             print("Access denied.")
@@ -85,7 +87,7 @@ extension QRReader {
             
         case .restricted: // The user can't grant access due to restrictions.
             print("Access restricted.")
-            response = QRReaderPermissionResult.PERMISSION_DENIED.rawValue
+            response = QRReaderPermissionResult.PERMISSION_RESTRICTED.rawValue
         }
         
         self.callback(command, status: CDVCommandStatus_OK, message: response)
