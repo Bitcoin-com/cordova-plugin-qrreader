@@ -730,7 +730,16 @@ public class CameraSource {
     if (requestedCameraId == -1) {
       throw new RuntimeException("Could not find requested camera.");
     }
-    Camera camera = Camera.open(requestedCameraId);
+
+    Camera camera;
+    Log.d(TAG, "Opening camera...");
+    try {
+      camera = Camera.open(requestedCameraId);
+      Log.d(TAG, "Camera.open() succeeded.");
+    } catch (RuntimeException e) {
+      Log.d(TAG, "Camera.open() caused exception. " + e.toString());
+      throw e;
+    }
 
     SizePair sizePair = selectSizePair(camera, mRequestedPreviewWidth, mRequestedPreviewHeight);
     if (sizePair == null) {
