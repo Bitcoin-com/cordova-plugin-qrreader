@@ -12,17 +12,14 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.Nullable;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -37,13 +34,9 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaInterface;
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.provider.Settings;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.Toast;
-
 
 
 public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
@@ -80,6 +73,8 @@ public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
     private Map<Integer, Barcode> mBarcodes = new HashMap<Integer, Barcode>();
     private CameraSource mCameraSource;
     private CameraSourcePreview mCameraSourcePreview;
+    private boolean mIsReading = false;
+    private boolean mIsRequestingPermission = false;
     private CallbackContext mStartCallbackContext;
     private CallbackContext mPermissionCallbackContext;
 
@@ -128,6 +123,43 @@ public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
         }
     }
 
+    @Override
+    public void onPause(boolean multitasking) {
+        Log.d(TAG, "onPause()");
+        // TODO: Release the camera here
+        if (!mIsRequestingPermission) {
+            if (mCameraSource != null) {
+                Log.d(TAG, "onPause() stopping the camera.");
+                try {
+                    mCameraSource.stop();
+                } catch (RuntimeException e) {
+                    Log.e(TAG, "onPause() exception when stopping the camera. " + e.toString());
+                }
+                // Keep the camera source so we can resume
+                mCameraSource = null;
+                Log.d(TAG, "onPause() set mCameraSource to null.");
+                //Log.d(TAG, "onPause() finished stopping the camera.");
+
+
+            }
+        } else {
+            Log.d(TAG, "onPause() requesting permission, so not messing with camera.");
+        }
+        super.onPause(multitasking);
+    }
+
+    @Override
+    public void onResume(boolean multitasking) {
+        Log.d(TAG, "onResume()");
+        super.onResume(multitasking);
+        if (mIsReading) {
+            Log.d(TAG, "onResume() trying to resume reading.");
+            startReadingWithPermission(mStartCallbackContext);
+            Log.d(TAG, "onResume() started reading.");
+        } else {
+            Log.d(TAG, "onResume() was idle.");
+        }
+    }
 
     /**
      * Creates and starts the camera.  Note that this uses a higher resolution in comparison
@@ -206,6 +238,7 @@ public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
         Log.d(TAG, "onRequestPermissionResult()");
 
         if (requestCode == CAMERA_REQ_CODE) {
+            mIsRequestingPermission = false;
             for (int r : grantResults) {
                 if (r == PackageManager.PERMISSION_DENIED) {
                     if (this.mPermissionCallbackContext != null) {
@@ -246,6 +279,7 @@ public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
             callbackContext.success(QRReaderPermissionResult.PERMISSION_GRANTED.name());
         } else {
             mPermissionCallbackContext = callbackContext;
+            mIsRequestingPermission = true;
             cordova.requestPermission(this, CAMERA_REQ_CODE, CAMERA);
         }
     }
@@ -347,8 +381,6 @@ public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
               webView.getView().setBackgroundColor(Color.argb(1, 0, 0, 0));
 
               webView.getView().bringToFront();
-              //viewGroup.bringChildToFront(preview);
-              //viewGroup.bringChildToFront(webView.getView());
 
               try {
                 startCameraSource(context, callbackContext);
@@ -358,6 +390,7 @@ public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
                 return;
               }
 
+              mIsReading = true;
             }
           }
         });
@@ -367,6 +400,7 @@ public class QRReader extends CordovaPlugin implements BarcodeUpdateListener {
 
   private void stopReading(CallbackContext callbackContext) {
     Log.d(TAG, "stopReading()");
+    mIsReading = false;
 
     if (mCameraSource != null) {
       mCameraSource.stop();
