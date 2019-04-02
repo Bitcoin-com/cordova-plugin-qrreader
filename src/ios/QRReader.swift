@@ -72,7 +72,7 @@ extension QRReader {
     func checkPermission(_ command: CDVInvokedUrlCommand) {
         
         var response: String
-        switch AVCaptureDevice.authorizationStatus(forMediaType: AVMediaTypeVideo) {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized: // The user has previously granted access to the camera.
             print("Access authorized.")
             response = QRReaderPermissionResult.PERMISSION_GRANTED.rawValue
@@ -129,7 +129,7 @@ extension QRReader {
         cameraView.backgroundColor = UIColor.white
         captureSession = AVCaptureSession()
         
-        guard let videoCaptureDevice = AVCaptureDevice.defaultDevice(withMediaType: AVMediaTypeVideo) else {
+        guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else {
             // TODO: Handle the case without permission "Permission"
             onFailed(QRReaderError.ERROR_PERMISSION_DENIED)
             return
@@ -160,11 +160,11 @@ extension QRReader {
         captureSession.addOutput(metadataOutput)
         
         metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
-        metadataOutput.metadataObjectTypes = [AVMetadataObjectTypeQRCode]
+        metadataOutput.metadataObjectTypes = [AVMetadataObject.ObjectType.qr]
         
         previewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
         previewLayer.frame = cameraView.layer.bounds
-        previewLayer.videoGravity = AVLayerVideoGravityResizeAspectFill
+        previewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
         
         cameraView.layer.addSublayer(previewLayer)
         superView.insertSubview(cameraView, belowSubview: webView)
