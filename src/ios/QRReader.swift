@@ -69,6 +69,7 @@ extension QRReader {
 //
 extension QRReader {
     
+    @objc(checkPermission:)
     func checkPermission(_ command: CDVInvokedUrlCommand) {
         
         var response: String
@@ -93,6 +94,7 @@ extension QRReader {
         self.callback(command, status: CDVCommandStatus_OK, message: response)
     }
     
+    @objc(openSettings:)
     func openSettings(_ command: CDVInvokedUrlCommand) {
         guard let settingsUrl = URL(string: UIApplicationOpenSettingsURLString), UIApplication.shared.canOpenURL(settingsUrl) else {
             self.callback(command, status: CDVCommandStatus_ERROR, message: QRReaderError.ERROR_OPEN_SETTINGS_UNAVAILABLE.rawValue)
@@ -104,6 +106,7 @@ extension QRReader {
         })
     }
     
+    @objc(startReading:)
     func startReading(_ command: CDVInvokedUrlCommand){
         
         // Keep the callback
@@ -172,6 +175,7 @@ extension QRReader {
         captureSession.startRunning()
     }
     
+    @objc(stopReading:)
     func stopReading(_ command: CDVInvokedUrlCommand){
         captureSession.stopRunning()
     }
